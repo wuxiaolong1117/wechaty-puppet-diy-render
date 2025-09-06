@@ -4,17 +4,10 @@ services:
     env: node
     plan: free
     region: singapore
-
-    # 1) 本地安装（非 -g）
-buildCommand: "echo ok"   # 构建阶段不装任何包
-
-
-
-    # 2) 用 npx 启动；确保监听 Render 注入的 $PORT
-startCommand: >
-  sh -lc "export WECHATY_PUPPET_SERVER_PORT=$PORT;
-  npm exec -y -p wechaty-puppet-service wechaty-puppet-service start"
-
+    buildCommand: "echo ok"
+    startCommand: >
+      sh -lc "export WECHATY_PUPPET_SERVER_PORT=$PORT;
+      npm exec -y -p wechaty-puppet-service wechaty-puppet-service start"
     envVars:
       - key: WECHATY_PUPPET
         value: wechaty-puppet-wechat
