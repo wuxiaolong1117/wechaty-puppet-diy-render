@@ -1,23 +1,16 @@
 FROM node:18-alpine
 
-# 多包全局安装，保证至少有一个 CLI
-RUN npm install -g \
-    wechaty-puppet-service@latest \
-    wechaty-puppet-service-cli@latest \
-    @wechaty/puppet-service@latest
+# 仅安装实际存在的 CLI 包：wechaty-puppet-service
+RUN npm install -g wechaty-puppet-service@latest
 
 ENV WECHATY_LOG=verbose
 EXPOSE 8788
 
-# 运行时探测可执行名并启动
+# 显式绑定 Render 的端口，确保对外监听
 CMD sh -lc 'set -e; \
-  for c in wechaty-puppet-service wechaty-puppet-service-cli wps; do \
-    if command -v "$c" >/dev/null 2>&1; then \
-      echo "Using CLI: $c"; \
-      exec "$c" start --host 0.0.0.0 --port "${PORT:-8788}"; \
-    fi; \
-  done; \
-  echo "No puppet-service CLI found in PATH" >&2; exit 127'
+  echo "Node: $(node -v)  NPM: $(npm -v)"; \
+  command -v wechaty-puppet-service || { echo "wechaty-puppet-service not in PATH"; exit 127; }; \
+  exec wechaty-puppet-service start --host 0.0.0.0 --port "${PORT:-8788}"'
 
 
 
