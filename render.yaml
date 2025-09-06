@@ -1,9 +1,11 @@
 services:
   - type: web
     name: wechaty-puppet-service
-    runtime: docker     # 使用仓库里的 Dockerfile 构建
+    env: node
     plan: free
     region: singapore
+    buildCommand: npm install -g wechaty-puppet-service@latest
+    startCommand: bash -lc "export WECHATY_PUPPET_SERVER_PORT=$PORT; wechaty-puppet-service start"
     envVars:
       - key: WECHATY_PUPPET
         value: wechaty-puppet-wechat
