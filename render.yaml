@@ -1,13 +1,13 @@
 services:
   - type: web
     name: wechaty-puppet-service
-    runtime: docker
-    region: singapore
+    runtime: docker     # 使用仓库里的 Dockerfile 构建
     plan: free
+    region: singapore
     envVars:
       - key: WECHATY_PUPPET
         value: wechaty-puppet-wechat
       - key: WECHATY_TOKEN
-        sync: false   # 在 Render 控制台里手动填
+        sync: false
       - key: WECHATY_LOG
         value: verbose
