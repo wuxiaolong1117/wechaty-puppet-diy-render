@@ -1,16 +1,10 @@
-FROM node:18-alpine
+FROM wechaty/wechaty:0.56
 
-# 仅安装实际存在的 CLI 包：wechaty-puppet-service
-RUN npm install -g wechaty-puppet-service@latest
-
+# 只开详细日志，方便排错
 ENV WECHATY_LOG=verbose
-EXPOSE 8788
 
-# 显式绑定 Render 的端口，确保对外监听
-CMD sh -lc 'set -e; \
-  echo "Node: $(node -v)  NPM: $(npm -v)"; \
-  command -v wechaty-puppet-service || { echo "wechaty-puppet-service not in PATH"; exit 127; }; \
-  exec wechaty-puppet-service start --host 0.0.0.0 --port "${PORT:-8788}"'
+# 不覆盖官方 ENTRYPOINT/CMD
+# Render 会注入 $PORT，我们只需要在启动时把它传给镜像
 
 
 
