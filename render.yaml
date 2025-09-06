@@ -5,17 +5,36 @@ services:
     plan: free
     region: singapore
 
-    # 先生成 package.json 并在构建阶段把依赖装好，减少启动时长
+    # 构建阶段：生成 package.json 并安装可能的 CLI（多装保证兼容）
     buildCommand: |
       npm init -y
-      npm install wechaty-puppet-service@latest --omit=dev --no-audit --no-fund
+      npm install \
+        wechaty-puppet-service@latest \
+        wechaty-puppet-service-cli@latest \
+        --omit=dev --no-audit --no-fund
 
-    # 启动时不再安装，直接用本地 bin，并且显式指定 host/port
+    # 启动阶段：自动探测真正的可执行文件名并绑定到 $PORT
     startCommand: >
-      sh -lc "
-      export WECHATY_PUPPET_SERVER_PORT=$PORT;
-      ./node_modules/.bin/wechaty-puppet-service start --host 0.0.0.0 --port $PORT
-      "
+      sh -lc '
+      set -e
+      export WECHATY_PUPPET_SERVER_PORT=$PORT
+      echo "Bins in ./node_modules/.bin:"
+      ls -la ./node_modules/.bin || true
+      BIN=""
+      for CAND in \
+        "./node_modules/.bin/wechaty-puppet-service" \
+        "./node_modules/.bin/wechaty-puppet-service-cli" \
+        "./node_modules/.bin/wps"
+      do
+        if [ -x "$CAND" ]; then BIN="$CAND"; break; fi
+      done
+      if [ -z "$BIN" ]; then
+        echo "❌ No puppet-service CLI found. Please check installed packages above."
+        exit 127
+      fi
+      echo "✅ Using CLI: $BIN"
+      exec "$BIN" start --host 0.0.0.0 --port "$PORT"
+      '
 
     envVars:
       - key: WECHATY_PUPPET
