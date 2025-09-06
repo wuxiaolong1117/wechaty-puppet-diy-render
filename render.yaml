@@ -4,10 +4,18 @@ services:
     env: node
     plan: free
     region: singapore
-    buildCommand: "echo ok"
+
+    # 构建阶段仅生成 package.json（不装包）
+    buildCommand: "npm init -y"
+
+    # 启动时本地安装，再从本地 bin 启动（不依赖 npx/npm exec）
     startCommand: >
-      sh -lc "export WECHATY_PUPPET_SERVER_PORT=$PORT;
-      npm exec -y -p wechaty-puppet-service wechaty-puppet-service start"
+      sh -lc "
+      export WECHATY_PUPPET_SERVER_PORT=$PORT;
+      npm install wechaty-puppet-service@latest --omit=dev --no-audit --no-fund;
+      ./node_modules/.bin/wechaty-puppet-service start
+      "
+
     envVars:
       - key: WECHATY_PUPPET
         value: wechaty-puppet-wechat
