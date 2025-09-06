@@ -5,15 +5,16 @@ services:
     plan: free
     region: singapore
 
-    # 构建阶段仅生成 package.json（不装包）
-    buildCommand: "npm init -y"
+    # 先生成 package.json 并在构建阶段把依赖装好，减少启动时长
+    buildCommand: |
+      npm init -y
+      npm install wechaty-puppet-service@latest --omit=dev --no-audit --no-fund
 
-    # 启动时本地安装，再从本地 bin 启动（不依赖 npx/npm exec）
+    # 启动时不再安装，直接用本地 bin，并且显式指定 host/port
     startCommand: >
       sh -lc "
       export WECHATY_PUPPET_SERVER_PORT=$PORT;
-      npm install wechaty-puppet-service@latest --omit=dev --no-audit --no-fund;
-      ./node_modules/.bin/wechaty-puppet-service start
+      ./node_modules/.bin/wechaty-puppet-service start --host 0.0.0.0 --port $PORT
       "
 
     envVars:
