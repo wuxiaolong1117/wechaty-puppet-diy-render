@@ -1,7 +1,7 @@
 FROM node:18-alpine
 
-# 安装 puppet service CLI
-RUN npm i -g wechaty-puppet-service@latest
+# 安装 wechaty puppet service CLI
+RUN npm install -g wechaty-puppet-service@latest
 
 ENV WECHATY_LOG=verbose
 EXPOSE 8788
